@@ -1,24 +1,38 @@
-let expenses = [];
+const { data } = require('../data');
 
-const resetExpenses = () => {
-  expenses = [];
+const getAllExpenses = () => {
+  return data.expenses;
 };
 
-const getAllExpenses = (userId, categories, from, to) => {
-  return expenses
-    .filter((expense) => !userId || expense.userId === +userId)
-    .filter((expense) => !categories || expense.category === categories)
-    .filter((expense) => !from || new Date(expense.spentAt) >= new Date(from))
-    .filter((expense) => !to || new Date(expense.spentAt) <= new Date(to));
+const getById = (id) => {
+  return data.expenses.find((exp) => exp.id === parseInt(id));
 };
 
-const getExpenseById = (id) => {
-  return expenses.find((expense) => expense.id === +id);
+const normalizeCategory = (categories) => {
+  return Array.isArray(categories) || !categories ? categories : [categories];
 };
 
-const createExpense = (userId, spentAt, title, amount, category, note) => {
-  const expense = {
-    id: Math.floor(Math.random() * 1000),
+const filterExpensesById = (id) => {
+  data.expenses = data.expenses.filter((exp) => exp.userId === parseInt(id));
+
+  return data.expenses;
+};
+
+const filterExpensesByCategory = (category) => {
+  return data.expenses.filter((exp) => category.includes(exp.category));
+};
+
+const filterExpensesByDate = (from, to) => {
+  return data.expenses.filter((exp) => {
+    const spentAt = new Date(exp.spentAt);
+
+    return spentAt >= from && spentAt <= to;
+  });
+};
+
+const create = ({ userId, spentAt, title, amount, category, note }) => {
+  const updatedExpense = {
+    id: data.nextId++,
     userId,
     spentAt,
     title,
@@ -27,28 +41,29 @@ const createExpense = (userId, spentAt, title, amount, category, note) => {
     note,
   };
 
-  expenses.push(expense);
+  data.expenses.push(updatedExpense);
 
-  return expense;
+  return updatedExpense;
 };
 
-const updateExpense = (id, data) => {
-  const expense = getExpenseById(id);
+const removeExpense = (id) => {
+  data.expenses = data.expenses.filter((exp) => exp.id !== +id);
 
-  Object.assign(expense, data);
-
-  return expense;
+  return data.expenses;
 };
 
-const deleteExpense = (id) => {
-  expenses = expenses.filter((expense) => expense.id !== +id);
+const updateExpense = (exp, req) => {
+  return Object.assign(exp, req.body);
 };
 
 module.exports = {
-  resetExpenses,
+  getById,
   getAllExpenses,
-  getExpenseById,
-  createExpense,
+  normalizeCategory,
+  filterExpensesById,
+  filterExpensesByCategory,
+  filterExpensesByDate,
+  create,
+  removeExpense,
   updateExpense,
-  deleteExpense,
 };
