@@ -1,44 +1,45 @@
-const { data } = require('../data');
+let users = [];
 
-const getAll = () => {
-  return data.users;
+const resetUsers = () => {
+  users = [];
 };
 
-const getById = (id) => {
-  return data.users.find((user) => user.id === id) || null;
+const getAllUsers = () => {
+  return users;
+};
+
+const getUserById = (id) => {
+  return users.find((person) => person.id === +id) || null;
+};
+
+const createUser = (name) => {
+  const user = {
+    id: Math.floor(Math.random() * 1000),
+    name,
+  };
+
+  users.push(user);
+
+  return user;
 };
 
 const updateUser = ({ id, name }) => {
-  const user = getById(id);
+  const user = getUserById(+id);
 
   Object.assign(user, { name });
 
   return user;
 };
 
-const createUser = (name) => {
-  const user = {
-    name,
-    id: data.nextId++,
-  };
-
-  data.users.push(user);
-
-  return user;
-};
-
 const deleteUser = (id) => {
-  const initialLength = data.users.length;
-
-  data.users = data.users.filter((user) => user.id !== id);
-
-  return data.users.length < initialLength;
+  users = users.filter((person) => person.id !== +id);
 };
 
 module.exports = {
-  getAll,
-  getById,
-  updateUser,
+  resetUsers,
+  getAllUsers,
+  getUserById,
   createUser,
+  updateUser,
   deleteUser,
 };
